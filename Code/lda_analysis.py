@@ -11,13 +11,38 @@ from tqdm import tqdm
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 
-import preprocess_files
-from metadata_manager import get_metadata_by_file_id, TEXTS_PATH
+from metadata_manager import get_metadata_by_file_id, TEXTS_PATH, STOPWORDS_PATH
 
 # Download NLTK data
 nltk.download('punkt')
 nltk.download('wordnet')
 nltk.download('stopwords')
+
+
+def eliminate_words_from_text(text, file_path=STOPWORDS_PATH):
+    """
+    Eliminates words from the input text that are listed in a text file.
+
+    :param text: str, input text to process
+    :param file_path: str, path to the text file containing words to eliminate (one word per line)
+    :return: str, processed text with specified words removed
+    """
+    try:
+        # Read the file and store the words in a set
+        with open(file_path, 'r') as f:
+            words_to_remove = set(word.strip().lower() for word in f if word.strip())
+
+        # Split the text into words and filter out the words to remove
+        result = ' '.join(
+            word for word in text.split() if word.lower() not in words_to_remove
+        )
+
+        return result
+
+    except FileNotFoundError:
+        return "Error: The file was not found."
+    except Exception as e:
+        return f"Error: {e}"
 
 
 def preprocess_text(documents):
@@ -30,7 +55,7 @@ def preprocess_text(documents):
     processed_docs = []
     for doc in tqdm(documents, desc="Preprocessing text"):
         doc = doc.lower()
-        doc = preprocess_files.eliminate_words_from_text(doc)
+        doc = eliminate_words_from_text(doc)
         tokens = word_tokenize(doc.lower())  # Convert to lowercase and tokenize
         filtered_tokens = [
             lemmatizer.lemmatize(word)
@@ -78,9 +103,6 @@ def generate_wordclouds_by_year(folder_path, output_before_1900="wordcloud_befor
     for file in tqdm(os.listdir(folder_path), desc="Loading texts"):
         if not file.endswith('.txt'):
             continue
-
-
-
         file_id = file.split('.')[0]
         file_data = get_metadata_by_file_id(file_id)
         file_year = file_data['year'].values[0] if not file_data.empty else None
