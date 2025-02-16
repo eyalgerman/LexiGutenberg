@@ -1,10 +1,10 @@
 import pandas as pd
 
 prefix = ""
+prefix = "/sise/home/germane/BigData/"
 metadata_file = "metadata.csv"
-METADATA_PATH = prefix + "metadata.csv"
+METADATA_PATH = prefix + "Data/metadata.csv"
 TEXTS_PATH = prefix + "gutenberg_books_train"
-# text_folder = "gutenberg_books_train"
 # Stopwords from "https://www.matthewjockers.net/2013/04/12/secret-recipe-for-topic-modeling-themes/"
 STOPWORDS_PATH = prefix + "sw_jockers.txt"
 
