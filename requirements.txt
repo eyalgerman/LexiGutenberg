@@ -1,0 +1,16 @@
+pandas
+matplotlib
+wordcloud
+gensim
+nltk
+tqdm
+spacy
+en-core-web-lg
+bertopic
+sentence-transformers
+scikit-learn
+seaborn
+numpy
+json
+textblob
+transformers
