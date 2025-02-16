@@ -51,13 +51,16 @@ To set up the project locally, follow these steps:
 ```
 LexiGutenberg/
 ├── data/                     # Project Gutenberg dataset (subset used)
-├── results/                  # Generated outputs (graphs, CSVs, JSONs)
-├── metadata_manager.py       # Handles metadata extraction & filtering
-├── lda_analysis.py           # LDA-based topic modeling & word clouds
-├── bert_topic_modeling.py    # BERTopic-based topic modeling & clustering
-├── gender_analysis.py        # Gender entity recognition & analysis
-├── sentiment_analysis.py     # Sentiment analysis using VADER & TextBlob
-├── main.ipynb                # Jupyter Notebook for interactive analysis
+│   ├── metadata.csv           # Metadata file containing book details
+├── sw_jockers.txt             # Stopword file from "https://www.matthewjockers.net/2013/04/12/secret-recipe-for-topic-modeling-themes/"
+├── results/                   # Generated outputs (graphs, CSVs, JSONs)
+├── code/
+│   ├── metadata_manager.py       # Handles metadata extraction & filtering
+│   ├── lda_analysis.py           # LDA-based topic modeling & word clouds
+│   ├── bert_topic_modeling.py    # BERTopic-based topic modeling & clustering
+│   ├── gender_analysis.py        # Gender entity recognition & analysis
+│   ├── sentiment_analysis.py     # Sentiment analysis using VADER & TextBlob
+│   ├── main.ipynb                # Jupyter Notebook for interactive analysis
 ├── requirements.txt          # Dependencies
 └── README.md                 # Project documentation
 ```
