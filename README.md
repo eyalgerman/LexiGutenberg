@@ -48,16 +48,6 @@ To set up the project locally, follow these steps:
 
 ## Project Structure
 
-## Jupyter Notebook
-The project also includes a **Jupyter Notebook** (`main.ipynb`) that provides an interactive environment for running analyses and visualizations. It allows users to:
-- Load and preprocess the **Project Gutenberg dataset**.
-- Perform **topic modeling** using **LDA and BERTopic**.
-- Analyze **gender representation** over time.
-- Classify books into genres with a pre-trained **XLM-RoBERTa model**.
-- Conduct **sentiment analysis** using **VADER and TextBlob**.
-- Generate visualizations such as **word clouds, topic maps, and sentiment trends**.
-- Easily modify parameters and rerun analyses without modifying code files directly.
-
 ```
 LexiGutenberg/
 ├── data/                     # Project Gutenberg dataset (subset used)
@@ -71,6 +61,17 @@ LexiGutenberg/
 ├── requirements.txt          # Dependencies
 └── README.md                 # Project documentation
 ```
+
+## Jupyter Notebook
+The project also includes a **Jupyter Notebook** (`main.ipynb`) that provides an interactive environment for running analyses and visualizations. It allows users to:
+- Load and preprocess the **Project Gutenberg dataset**.
+- Perform **topic modeling** using **LDA and BERTopic**.
+- Analyze **gender representation** over time.
+- Classify books into genres with a pre-trained **XLM-RoBERTa model**.
+- Conduct **sentiment analysis** using **VADER and TextBlob**.
+- Generate visualizations such as **word clouds, topic maps, and sentiment trends**.
+- Easily modify parameters and rerun analyses without modifying code files directly.
+
 
 ## Results
 ### Key Findings:
