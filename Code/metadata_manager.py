@@ -1,6 +1,6 @@
 import pandas as pd
 
-prefix = "/sise/home/germane/BigData/"
+prefix = ""
 metadata_file = "metadata.csv"
 METADATA_PATH = prefix + "metadata.csv"
 TEXTS_PATH = prefix + "gutenberg_books_train"
