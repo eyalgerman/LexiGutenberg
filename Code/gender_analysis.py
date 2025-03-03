@@ -1,8 +1,9 @@
 import json
 import os
-from collections import defaultdict
+from collections import defaultdict, Counter
 from datetime import datetime
-
+import re
+import numpy as np
 import spacy
 from matplotlib import pyplot as plt
 from tqdm import tqdm
@@ -22,46 +23,60 @@ def chunk_text(text, chunk_size=100000):
         yield text[i:i+chunk_size]
 
 
-def count_gender_entities_in_document(text, chunk_size=1000000):
+def count_gender_entities_in_document_keywords(text, chunk_size=1000000):
     """
-    Analyzes a given text document to count the occurrences of male and female entities
-    based on named entity recognition (NER) and surrounding gender-related keywords.
+    Optimized function to count occurrences of male and female gendered words in a document.
 
     Args:
         text (str): The input text document to be analyzed.
         chunk_size (int, optional): The size of text chunks for processing. Defaults to 1,000,000 characters.
-                                    Splitting the text into chunks helps manage memory usage when processing large documents.
 
     Returns:
         dict: A dictionary containing:
-            - "male" (int): The number of detected male entities.
-            - "female" (int): The number of detected female entities.
-            - "male_names" (list of str): The list of detected male entity names.
-            - "female_names" (list of str): The list of detected female entity names.
+            - "male" (int): The total count of detected male-related words.
+            - "female" (int): The total count of detected female-related words.
     """
-    gender_keywords_male = {"he", "him", "his", "man", "men", "boy", "gentleman", "gentlemen", "father", "brother", "husband", "son", "sir"}
-    gender_keywords_female = {"she", "her", "hers", "woman", "women", "girl", "lady", "ladies", "mother", "sister", "wife", "daughter", "madam", "miss", "ms"}
+    # Define gender-specific keywords for fallback and independent counting.
+    gender_keywords_male = {"he", "him", "his", "man", "men", "boy", "gentleman", "gentlemen",
+                            "father", "brother", "husband", "son", "sir"}
+    gender_keywords_male.update({
+        "himself", "lord", "lords", "prince", "king", "duke", "sir",
+        "mister", "mr", "knight", "bachelor", "baron", "squire",
+        "monk", "abbot", "patriarch", "emperor", "czar", "tsar",
+        "groom", "nephew", "godfather", "stepfather", "grandfather",
+        "stepbrother", "grandson", "uncle", "actor", "hero", "master",
+        "chap", "lad", "fellow", "bloke", "gent"
+    })
+    gender_keywords_female = {"she", "her", "hers", "woman", "women", "girl", "lady", "ladies",
+                              "mother", "sister", "wife", "daughter", "madam", "miss", "ms"}
+    gender_keywords_female.update({
+        "herself", "ladyship", "princess", "queen", "duchess", "mistress",
+        "madame", "mademoiselle", "baroness", "nun", "abbess", "matriarch",
+        "empress", "czarina", "tsarina", "bride", "niece", "godmother",
+        "stepmother", "grandmother", "stepsister", "granddaughter", "aunt",
+        "actress", "heroine", "maiden", "damsel", "lass", "belle", "girlhood",
+        "spinster", "widow", "diva"
+    })
 
     male_count = 0
     female_count = 0
-    male_names = []
-    female_names = []
 
+    # Process the document in manageable chunks.
     for chunk in chunk_text(text, chunk_size=chunk_size):
-        doc = nlp(chunk)
-        for ent in doc.ents:
-            if ent.label_ == "PERSON":
-                # Check context for gender-specific keywords
-                offset = 5
-                surrounding_text = doc[max(0, ent.start-offset):min(len(doc), ent.end+offset)].text.lower()
-                if any(keyword in surrounding_text for keyword in gender_keywords_male) or ent.text.lower in male_names:
-                    male_count += 1
-                    male_names.append(ent.text)
-                elif any(keyword in surrounding_text for keyword in gender_keywords_female) or ent.text.lower in female_names:
-                    female_count += 1
-                    female_names.append(ent.text)
+        # Tokenize properly (handle punctuation, hyphens, etc.)
+        words = re.findall(r"\b[\w'-]+\b", chunk.lower())
 
-    return {"male": male_count, "female": female_count, "male_names": male_names, "female_names": female_names}
+        # Normalize words (lemmatization)
+        # words = [token.lemma_ for token in nlp(" ".join(words)) if token.is_alpha]
+
+        # Use Counter for fast word frequency lookup
+        word_counts = Counter(words)
+
+        # Count occurrences of gender-related words
+        male_count += sum(word_counts[word] for word in gender_keywords_male if word in word_counts)
+        female_count += sum(word_counts[word] for word in gender_keywords_female if word in word_counts)
+
+    return {"male": male_count, "female": female_count}
 
 
 def find_named_entities_in_folder(folder_path, output_file="gender_named_entities.json"):
@@ -85,7 +100,7 @@ def find_named_entities_in_folder(folder_path, output_file="gender_named_entitie
         with open(file_path, 'r', encoding='utf-8') as f:
             text = f.read()
 
-        gender_count_entities = count_gender_entities_in_document(text)
+        gender_count_entities = count_gender_entities_in_document_keywords(text)
         # gender_count_entities = count_gender_entities_with_gender_spacy(text)
 
         # Determine the decade
@@ -189,7 +204,7 @@ def count_gender_entities_bookMIA(output_file="gender_named_entities_bookMIA.jso
 
     for data_source in data_sources:
         for text in tqdm(data_source, desc="Processing texts"):
-            gender_count_entities = count_gender_entities_in_document(text["snippet"])
+            gender_count_entities = count_gender_entities_in_document_keywords(text["snippet"])
             gender_entities["male"] += gender_count_entities["male"]
             gender_entities["female"] += gender_count_entities["female"]
             gender_entities_by_label[str(text["label"])]["male"] += gender_count_entities["male"]
@@ -319,7 +334,7 @@ def plot_gender_entities_by_label_comparison(bookMIA_entities, entities_by_decad
 if __name__ == "__main__":
     folder_path = "saved_results"
     os.makedirs(folder_path, exist_ok=True)
-    filename = f"{folder_path}/gender_named_entities_gender_spacy.json"
+    filename = f"{folder_path}/gender_named_entities_gender_keywords.json"
     # entities_by_decade = find_named_entities_in_folder(TEXTS_PATH, filename)
     with open(filename, "r") as file:
         entities_by_decade = json.load(file)
